@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI в роботі PPC-агенції</title>
+<meta name="description" content="Як вбудувати AI в роботу агенції з Google Ads: етапи, промпти, перевірка оголошень і скільки часу це економить.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F2F4F1;
+    --paper:#FFFFFF;
+    --ink:#17201C;
+    --muted:#5E6B64;
+    --line:#D8DED9;
+    --blue:#2B48C9;
+    --blue-soft:#E6EBFB;
+    --before:#C9D0CB;
+    --after:#2B48C9;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 "Onest",system-ui,sans-serif}
+  .wrap{max-width:860px;margin:0 auto;padding:0 20px}
+  :focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+  h1,h2,h3{margin:0;line-height:1.15}
+  p{margin:0 0 1em}
+
+  /* Hero */
+  .hero{padding:72px 0 40px}
+  .hero h1{font-size:clamp(2.2rem,6vw,3.6rem);font-weight:700;letter-spacing:-.02em;max-width:15ch}
+  .hero .lead{font-size:1.15rem;color:var(--muted);max-width:56ch;margin-top:18px}
+  .sum{margin-top:36px;background:var(--paper);border-radius:16px;padding:22px 24px}
+  .sum-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .sum-row strong{font-size:1.6rem;font-weight:700}
+  .sum-row span{color:var(--muted);font-size:.95rem}
+  .bars{margin-top:14px;display:grid;gap:8px}
+  .bar{display:grid;grid-template-columns:96px 1fr;align-items:center;gap:12px;font-size:.9rem;color:var(--muted)}
+  .bar i{display:block;height:14px;border-radius:7px}
+  .bar .b{background:var(--before)}
+  .bar .a{background:var(--after)}
+  .note{font-size:.85rem;color:var(--muted);margin:12px 0 0}
+
+  /* Stages: справжня послідовність, тому нумерація */
+  .stages{list-style:none;margin:24px 0 0;padding:0;counter-reset:st}
+  .stage{position:relative;padding:0 0 40px 64px}
+  .stage::before{counter-increment:st;content:counter(st);position:absolute;left:0;top:0;width:40px;height:40px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:600}
+  .stage::after{content:"";position:absolute;left:19px;top:48px;bottom:8px;width:2px;background:var(--line)}
+  .stage:last-child::after{display:none}
+  .stage h3{font-size:1.4rem;font-weight:600;padding-top:6px}
+  .stage .what{color:var(--muted);margin:8px 0 14px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:.92rem;margin-bottom:14px}
+  .meta b{font-weight:600}
+  .time{display:inline-flex;align-items:center;gap:8px}
+  .time s{color:var(--muted)}
+  .time em{font-style:normal;font-weight:600;color:var(--blue)}
+
+  .prompt{background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .prompt-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:.88rem;color:var(--muted)}
+  .copy{font:inherit;font-size:.88rem;font-weight:500;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:5px 12px;cursor:pointer}
+  .copy:hover{border-color:var(--ink)}
+  .copy.done{background:var(--blue);border-color:var(--blue);color:#fff}
+  .prompt pre{margin:0;padding:14px 16px;white-space:pre-wrap;word-wrap:break-word;font:400 .93rem/1.6 "Onest",sans-serif;color:var(--ink)}
+  .prompt pre mark{background:var(--blue-soft);color:var(--blue);border-radius:4px;padding:0 3px}
+
+  /* Sections */
+  section{padding:40px 0}
+  section h2{font-size:clamp(1.6rem,4vw,2.2rem);font-weight:700;letter-spacing:-.01em}
+  .intro{color:var(--muted);max-width:60ch;margin-top:12px}
+
+  .case{background:var(--ink);color:#E8EDEA;border-radius:16px;padding:28px}
+  .case h2{color:#fff;margin-bottom:12px}
+  .case p{max-width:62ch}
+  .case a{color:#AFC0FF}
+  .case ul{margin:14px 0 0;padding-left:20px}
+  .case li{margin-bottom:6px}
+
+  .plan{display:grid;gap:14px;margin-top:20px}
+  .plan div{background:var(--paper);border-radius:12px;padding:18px 20px}
+  .plan h3{font-size:1.1rem;font-weight:600;margin-bottom:6px}
+  .plan p{margin:0;color:var(--muted)}
+
+  .no{margin:18px 0 0;padding-left:20px}
+  .no li{margin-bottom:8px}
+
+  footer{padding:24px 0 56px;color:var(--muted);font-size:.92rem}
+  footer a{color:var(--ink)}
+
+  @media (max-width:560px){
+    .stage{padding-left:52px}
+    .stage::before{width:34px;height:34px;font-size:.95rem}
+    .stage::after{left:16px;top:42px}
+    .bar{grid-template-columns:78px 1fr}
+  }
+
+  /* Перевірка оголошень */
+  .tool{background:var(--paper);border-radius:16px;padding:24px;margin-top:20px}
+  .tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .tool label{display:flex;flex-direction:column;gap:6px;font-size:.92rem;font-weight:500}
+  .tool label small{font-weight:400;color:var(--muted)}
+  .tool textarea,.tool input{font:inherit;font-size:.95rem;line-height:1.55;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg);width:100%;min-width:0}
+  .tool textarea{min-height:230px;resize:vertical}
+  .tool .kw{margin-top:16px}
+  .score{display:flex;flex-wrap:wrap;gap:8px 20px;margin:20px 0 12px;font-size:.95rem}
+  .score b{font-weight:600}
+  .score .bad{color:#B3261E}
+  .score .good{color:#1F7A4D}
+  .lines{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+  .lines li{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:start;padding:8px 12px;border-radius:8px;background:var(--bg);font-size:.93rem}
+  .lines li .n{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+  .lines li.err{background:#FBE7E5}
+  .lines li.err .n{color:#B3261E;font-weight:600}
+  .lines li.warn{background:#FFF3D6}
+  .lines li .why{grid-column:1/-1;font-size:.85rem;color:#8A4B00}
+  .lines li.err .why{color:#B3261E}
+  .lines li.lh{display:block;background:none;padding:10px 0 0;font-weight:600;color:var(--muted);font-size:.9rem}
+  @media (max-width:700px){.tool-grid{grid-template-columns:1fr}.tool textarea{min-height:170px}}
+</style>
+</head>
+<body>
+
+<header class="hero wrap">
+  <h1>AI в роботі PPC‑агенції</h1>
+  <p class="lead">Як я б вбудував AI у роботу з Google Ads: від брифа нового клієнта до щомісячного звіту. Для кожного етапу інструмент, готовий промпт і скільки часу це економить. Нижче є робочий інструмент перевірки оголошень.</p>
+
+  <div class="sum" aria-label="Економія часу на запуску нового клієнта">
+    <div class="sum-row">
+      <strong>Новий клієнт: 33 год → 10 год</strong>
+      <span>від брифа до запуску і першого звіту</span>
+    </div>
+    <div class="bars">
+      <div class="bar"><span>Зараз</span><i class="b" style="width:100%"></i></div>
+      <div class="bar"><span>З AI</span><i class="a" style="width:30%"></i></div>
+    </div>
+    <p class="note">Цифри орієнтовні. В агенції їх варто заміряти на перших 2–3 клієнтах.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <ol class="stages">
+    <li class="stage">
+      <h3>Бриф і аналіз ніші</h3>
+      <p class="what">Розібрати бізнес клієнта і конкурентів до запуску: що продаємо, кому, з якою маржею, чим відрізняємось і що пишуть конкуренти в оголошеннях.</p>
+      <div class="meta">
+        <span><b>Інструмент:</b> Claude або ChatGPT</span>
+        <span class="time"><b>Час:</b> <s>3 год</s> <em>1 год</em></span>
+      </div>
+      <div class="prompt">
+        <div class="prompt-head"><span>Промпт</span><button class="copy" type="button">Скопіювати</button></div>
+<pre>Ти PPC-стратег. Ось бриф клієнта: <mark>[вставити]</mark>
+і тексти оголошень конкурентів з пошуку: <mark>[вставити]</mark>.
+Склади коротко:
+1. Що продаємо і кому, 2–3 сегменти з головним болем кожного.
+2. Які УТП конкуренти вже використовують, а які вільні.
+3. Чим клієнт може відрізнитись в оголошеннях (лише з фактів брифа).
+4. Ризики: висока ціна кліку, сезонність, низька маржа.
+5. Питання до клієнта, без яких не варто запускати рекламу.
+Не вигадуй цифр і фактів.</pre>
+      </div>
+    </li>
+    <li class="stage">
+      <h3>Семантика і структура кампаній</h3>
+      <p class="what">Розкласти вивантаження з Keyword Planner по групах оголошень за наміром, відсіяти нецільове.</p>
+      <div class="meta">
+        <span><b>Інструмент:</b> Claude або ChatGPT</span>
+        <span class="time"><b>Час:</b> <s>6 год</s> <em>2 год</em></span>
+      </div>
+      <div class="prompt">
+        <div class="prompt-head"><span>Промпт</span><button class="copy" type="button">Скопіювати</button></div>
+<pre>Ось вивантаження ключових слів з Keyword Planner (CSV): <mark>[вставити]</mark>.
+Бізнес: <mark>[що продаємо, місто]</mark>.
+1. Розбий ключі на групи оголошень за наміром (купити, ціна, послуга, порівняння).
+2. Окремо виніс нецільові та інформаційні запити, це кандидати в мінус-слова.
+3. Для кожної групи вкажи 1–2 ключі-лідери за частотою.
+Результат таблицею: група | ключове слово | частота | тип відповідності.</pre>
+      </div>
+    </li>
+    <li class="stage">
+      <h3>Тексти оголошень</h3>
+      <p class="what">15 заголовків і 4 описи для адаптивного оголошення на кожну групу. Чернетку пише AI, а перевіряє інструмент нижче на цій сторінці.</p>
+      <div class="meta">
+        <span><b>Інструмент:</b> Claude або ChatGPT + перевірка</span>
+        <span class="time"><b>Час:</b> <s>4 год</s> <em>1 год</em></span>
+      </div>
+      <div class="prompt">
+        <div class="prompt-head"><span>Промпт</span><button class="copy" type="button">Скопіювати</button></div>
+<pre>Напиши адаптивне пошукове оголошення Google Ads для групи <mark>[назва групи]</mark>.
+Ключове слово: <mark>[ключ]</mark>. УТП клієнта: <mark>[факти з брифа]</mark>.
+- 15 заголовків до 30 символів, у 3–5 з них ключове слово;
+- 4 описи до 90 символів;
+- без знаку оклику в заголовках, без слів ВЕЛИКИМИ ЛІТЕРАМИ;
+- різні підходи: ціна, швидкість, гарантія, довіра, заклик до дії.
+Видай лише список: спочатку заголовки по одному в рядку, потім порожній рядок, потім описи.</pre>
+      </div>
+    </li>
+    <li class="stage">
+      <h3>Мінус-слова зі звіту пошукових запитів</h3>
+      <p class="what">Найнудніша щотижнева рутина: продивитись сотні запитів і знайти ті, за якими гроші йдуть даремно.</p>
+      <div class="meta">
+        <span><b>Інструмент:</b> Claude</span>
+        <span class="time"><b>Час:</b> <s>2 год щотижня</s> <em>30 хв</em></span>
+      </div>
+      <div class="prompt">
+        <div class="prompt-head"><span>Промпт</span><button class="copy" type="button">Скопіювати</button></div>
+<pre>Ось звіт пошукових запитів за тиждень (CSV з колонками запит, кліки, вартість, конверсії): <mark>[вставити]</mark>.
+Бізнес: <mark>[що продаємо і чого НЕ продаємо]</mark>.
+1. Знайди запити без конверсій, які явно нецільові, і запропонуй мінус-слова.
+2. Згрупуй мінус-слова за темою (безкоштовно, вакансії, ремонт, інше місто).
+3. Окремо: запити з конверсіями, яких немає серед ключових слів, їх варто додати.
+Нічого не мінусуй, якщо сумніваєшся, винеси такі запити в окремий список.</pre>
+      </div>
+    </li>
+    <li class="stage">
+      <h3>Фід для Shopping</h3>
+      <p class="what">Переписати назви й описи товарів у фіді так, щоб вони відповідали тому, як люди шукають. На каталозі з сотень позицій це дні ручної роботи.</p>
+      <div class="meta">
+        <span><b>Інструмент:</b> ChatGPT або Claude з CSV</span>
+        <span class="time"><b>Час:</b> <s>8 год</s> <em>2 год</em></span>
+      </div>
+      <div class="prompt">
+        <div class="prompt-head"><span>Промпт</span><button class="copy" type="button">Скопіювати</button></div>
+<pre>Ось фрагмент товарного фіду (CSV: id, title, description, brand, product_type): <mark>[вставити]</mark>.
+Перепиши title для Google Shopping за схемою:
+бренд + тип товару + ключова характеристика + розмір/колір/модель.
+До 150 символів, найважливіше в перших 70. Без слів «акція», «найкращий», без великих літер.
+Поверни CSV з колонками id, new_title. Нічого не вигадуй, лише з наявних даних.</pre>
+      </div>
+    </li>
+    <li class="stage">
+      <h3>Креативи для Performance Max</h3>
+      <p class="what">Набір зображень і коротких відео в різних форматах, коли у клієнта мало своїх матеріалів.</p>
+      <div class="meta">
+        <span><b>Інструмент:</b> Stable Diffusion або Midjourney, Kling</span>
+        <span class="time"><b>Час:</b> <s>6 год</s> <em>2 год</em></span>
+      </div>
+      <div class="prompt">
+        <div class="prompt-head"><span>Промпт для зображення</span><button class="copy" type="button">Скопіювати</button></div>
+<pre>Commercial photo of <mark>[product]</mark> in real use, <mark>[setting]</mark>,
+natural light, no visible logos or text, clean space for headline,
+brand colors <mark>[colors]</mark>. Variants: 1:1, 1.91:1, 4:5.</pre>
+      </div>
+    </li>
+    <li class="stage">
+      <h3>Посадкова сторінка</h3>
+      <p class="what">Реклама веде на сторінку, і часто проблема саме в ній. Швидкий аудит: чи відповідає сторінка оголошенню і чи зрозуміло що робити.</p>
+      <div class="meta">
+        <span><b>Інструмент:</b> Claude + PageSpeed Insights</span>
+        <span class="time"><b>Час:</b> <s>2 год</s> <em>40 хв</em></span>
+      </div>
+      <div class="prompt">
+        <div class="prompt-head"><span>Промпт</span><button class="copy" type="button">Скопіювати</button></div>
+<pre>Ось текст оголошення: <mark>[вставити]</mark>
+і HTML посадкової сторінки разом зі звітом PageSpeed: <mark>[вставити]</mark>.
+Оціни як PPC-спеціаліст:
+1. Чи бачить людина на першому екрані те, що обіцяли в оголошенні.
+2. Що заважає залишити заявку (форма, швидкість, довіра, мобільна версія).
+3. 5 правок, які найімовірніше піднімуть конверсію, від найважливішої.</pre>
+      </div>
+    </li>
+    <li class="stage">
+      <h3>Звіт клієнту</h3>
+      <p class="what">Щомісячний звіт простою мовою з даних Google Ads і GA4: що отримали за гроші і що робимо далі.</p>
+      <div class="meta">
+        <span><b>Інструмент:</b> ChatGPT або Gemini</span>
+        <span class="time"><b>Час:</b> <s>2 год</s> <em>30 хв</em></span>
+      </div>
+      <div class="prompt">
+        <div class="prompt-head"><span>Промпт</span><button class="copy" type="button">Скопіювати</button></div>
+<pre>Ось дані Google Ads і GA4 за <mark>[місяць]</mark> і попередній місяць: <mark>[CSV]</mark>.
+Напиши звіт власнику бізнесу:
+- витрати, кількість заявок, ціна заявки, і як змінились;
+- що спрацювало і що вимкнули чи змінили;
+- 2–3 кроки на наступний місяць.
+Одна сторінка, без термінів типу CTR, якщо можна сказати простіше.</pre>
+      </div>
+    </li>
+  </ol>
+
+  <section aria-labelledby="toolTitle">
+    <h2 id="toolTitle">Перевірка оголошення</h2>
+    <p class="intro">AI пише чернетку оголошення за промптом з етапу 3, а цей інструмент одразу показує, що не пройде модерацію або не влізе в ліміти. Вставте свій текст або подивіться на приклад.</p>
+    <div class="tool">
+      <div class="tool-grid">
+        <label>Заголовки <small>по одному в рядку, до 30 символів, максимум 15</small>
+          <textarea id="heads" spellcheck="false">Кондиціонери з монтажем
+Монтаж за 1 день
+Гарантія 3 роки на роботу
+Кондиціонери від 12 999 грн
+Безкоштовний виїзд майстра
+Знижка на монтаж до кінця місяця!
+Монтаж за 1 день
+Тільки офіційна гарантія
+Розстрочка без переплат
+ТЕРМІНОВИЙ монтаж сьогодні</textarea>
+        </label>
+        <label>Описи <small>по одному в рядку, до 90 символів, максимум 4</small>
+          <textarea id="descs" spellcheck="false">Підберемо кондиціонер під площу і бюджет. Монтаж за 1 день, гарантія 3 роки.
+Безкоштовний виїзд майстра для заміру. Розстрочка без переплат. Телефонуйте!
+Працюємо з 2015 року, понад 3000 встановлених кондиціонерів у місті та області без жодних скарг.</textarea>
+        </label>
+      </div>
+      <label class="kw">Ключове слово групи <small>перевіримо, у скількох заголовках воно є</small>
+        <input id="kw" value="кондиціонер" autocomplete="off">
+      </label>
+      <div class="score" id="score" role="status"></div>
+      <ul class="lines" id="lines"></ul>
+    </div>
+  </section>
+
+  <section class="case" aria-labelledby="caseTitle">
+    <h2 id="caseTitle">Чому я</h2>
+    <p>Я бачив рекламу з боку бізнесу: рік сам продавав спорттовари, робив сайт, креативи і рекламу і рахував, скільки коштує продаж. Майже 10 років роблю сайти і лендинги, тобто ту частину, куди веде ваша реклама. AI використовую щодня, ось що зібрав з ним:</p>
+    <ul>
+      <li><a href="https://kaybedow.github.io/mertico-concept/">Концепт B2B-лендингу</a> з аналізом ринку і конфігуратором розмірів.</li>
+      <li><a href="https://kaybedow.github.io/payouts-demo/">Демо внутрішньої системи</a> зі звіркою сум і імпортом CSV.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="planTitle">
+    <h2 id="planTitle">Як я б впроваджував це у вас</h2>
+    <p class="intro">Не все одразу, а від задач, на які команда витрачає найбільше часу.</p>
+    <div class="plan">
+      <div><h3>Тиждень 1. Аудит</h3><p>Пройти з командою один реальний акаунт від брифа до звіту і записати, що повторюється і де йде час.</p></div>
+      <div><h3>Тиждень 2. Бібліотека промптів</h3><p>Промпти й шаблони під ваші ніші та формат звітів, в одному місці для всіх.</p></div>
+      <div><h3>Тиждень 3. Навчання і замір</h3><p>Показати команді на живих акаунтах, заміряти час до і після.</p></div>
+      <div><h3>Далі. Автоматизація</h3><p>Щотижневі мінус-слова, чернетки звітів і оновлення фідів за розкладом.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="noTitle">
+    <h2 id="noTitle">Що я не віддаю AI</h2>
+    <ul class="no">
+      <li>Рішення по бюджетах і ставках. AI підказує, вирішує спеціаліст.</li>
+      <li>Факти, ціни й обіцянки в оголошеннях. AI їх вигадує впевнено і красиво.</li>
+      <li>Мінус-слова без перегляду. Один зайвий мінус може вимкнути цільовий трафік.</li>
+      <li>Персональні дані клієнтів і доступи до акаунтів. У чат вони не потрапляють.</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <p>Підготував Кирило для Virta Web. Telegram: <a href="https://t.me/+380969350501">+380 96 935 05 01</a></p>
+</footer>
+
+<script>
+(function () {
+  /* Кнопки копіювання промптів */
+  function fallback(text) {
+    var t = document.createElement('textarea');
+    t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    t.remove();
+  }
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = btn.closest('.prompt').querySelector('pre').innerText;
+      var done = function () {
+        btn.textContent = 'Скопійовано'; btn.classList.add('done');
+        setTimeout(function () { btn.textContent = 'Скопіювати'; btn.classList.remove('done'); }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); });
+      else { fallback(text); done(); }
+    });
+  });
+
+  /* Перевірка оголошення: ліміти Google Ads для адаптивного пошукового оголошення */
+  var heads = document.getElementById('heads'), descs = document.getElementById('descs');
+  var kw = document.getElementById('kw'), score = document.getElementById('score'), lines = document.getElementById('lines');
+  function esc(s) { return s.replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function len(s) { return Array.from(s).length; }
+  function split(t) { return t.split('\n').map(function (s) { return s.trim(); }).filter(Boolean); }
+
+  function check(text, limit, isHead, seen) {
+    var issues = [], level = '';
+    var n = len(text);
+    if (n > limit) { issues.push('довше ліміту на ' + (n - limit)); level = 'err'; }
+    if (isHead && text.indexOf('!') !== -1) { issues.push('знак оклику в заголовку не пройде модерацію'); level = 'err'; }
+    if (!isHead && (text.match(/!/g) || []).length > 1) { issues.push('більше одного знаку оклику'); level = 'err'; }
+    if (/!!|\?\?|\.\.\./.test(text)) { issues.push('повтор розділових знаків'); level = 'err'; }
+    if (/(^|\s)[A-ZА-ЯІЇЄҐ]{4,}(?=\s|$|[.,])/.test(text)) { issues.push('слово великими літерами, Google таке відхиляє'); level = level || 'warn'; }
+    if (/\s{2,}/.test(text)) { issues.push('подвійний пробіл'); level = level || 'warn'; }
+    var key = text.toLowerCase();
+    if (seen[key]) { issues.push('дублікат'); level = 'err'; }
+    seen[key] = true;
+    return { text: text, n: n, limit: limit, issues: issues, level: level };
+  }
+
+  function row(r) {
+    return '<li class="' + r.level + '"><span>' + esc(r.text) + '</span><span class="n">' + r.n + ' / ' + r.limit + '</span>' +
+      (r.issues.length ? '<span class="why">' + r.issues.join(', ') + '</span>' : '') + '</li>';
+  }
+
+  function run() {
+    var h = split(heads.value), d = split(descs.value), seen = {};
+    var hr = h.map(function (t) { return check(t, 30, true, seen); });
+    var dr = d.map(function (t) { return check(t, 90, false, seen); });
+    var k = kw.value.trim().toLowerCase();
+    var withKw = k ? h.filter(function (t) { return t.toLowerCase().indexOf(k) !== -1; }).length : 0;
+    var errs = hr.concat(dr).filter(function (r) { return r.level === 'err'; }).length;
+    var warns = hr.concat(dr).filter(function (r) { return r.level === 'warn'; }).length;
+
+    var s = [];
+    s.push('<span>Заголовків: <b class="' + (h.length < 3 || h.length > 15 ? 'bad' : '') + '">' + h.length + '</b> з 15</span>');
+    s.push('<span>Описів: <b class="' + (d.length < 2 || d.length > 4 ? 'bad' : '') + '">' + d.length + '</b> з 4</span>');
+    if (k) s.push('<span>З ключовим словом: <b class="' + (withKw < 3 ? 'bad' : 'good') + '">' + withKw + '</b> заголовків' + (withKw < 3 ? ', треба хоча б 3' : '') + '</span>');
+    s.push(errs || warns
+      ? '<span><b class="bad">Виправити: ' + errs + '</b>' + (warns ? ', перевірити: ' + warns : '') + '</span>'
+      : '<span><b class="good">Готово до завантаження</b></span>');
+    score.innerHTML = s.join('');
+
+    lines.innerHTML = (hr.length ? '<li class="lh">Заголовки</li>' + hr.map(row).join('') : '') +
+                      (dr.length ? '<li class="lh">Описи</li>' + dr.map(row).join('') : '');
+  }
+  [heads, descs, kw].forEach(function (el) { el.addEventListener('input', run); });
+  run();
+})();
+</script>
+</body>
+</html>
